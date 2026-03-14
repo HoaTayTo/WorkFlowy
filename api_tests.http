@@ -1,0 +1,95 @@
+### File này dùng chung với Extension "REST Client" trên VS Code (Cài đặt để có nút "Send Request" phía trên mỗi API)
+### Hoặc bạn có thể dùng Postman để cấu hình tương tự.
+
+@baseUrl = http://127.0.0.1:8000/api
+@email = test_cv@workflowy.com
+@password = password123
+
+### 1. Đăng ký Tài khoản (Register)
+# @name register
+POST {{baseUrl}}/register
+Content-Type: application/json
+Accept: application/json
+
+{
+    "name": "Nhà Tuyển Dụng",
+    "email": "{{email}}",
+    "password": "{{password}}",
+    "password_confirmation": "{{password}}"
+}
+
+### -------------------------------------------------------------
+
+### 2. Đăng nhập (Login)
+# @name login
+POST {{baseUrl}}/login
+Content-Type: application/json
+Accept: application/json
+
+{
+    "email": "{{email}}",
+    "password": "{{password}}"
+}
+
+### Tự động gán Token từ kết quả đăng nhập phía trên vào biến này:
+@token = {{login.response.body.access_token}}
+
+### -------------------------------------------------------------
+
+### 3. Lấy thông tin cá nhân (Profile)
+GET {{baseUrl}}/user
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### -------------------------------------------------------------
+
+### 4. Tạo Dự Án Mới (Create Project)
+# @name createProject
+POST {{baseUrl}}/projects
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+    "name": "Tuyển dụng kỹ sư Laravel + Vue",
+    "description": "Dự án đánh giá năng lực ứng viên qua project WorkFlowy"
+}
+
+@projectId = {{createProject.response.body.id}}
+
+### -------------------------------------------------------------
+
+### 5. Lấy Danh Sách Dự Án (Get Projects)
+GET {{baseUrl}}/projects
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### -------------------------------------------------------------
+
+### 6. Tạo Test Task (Create Task)
+POST {{baseUrl}}/tasks
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+    "project_id": {{projectId}},
+    "title": "Phỏng vấn ứng viên",
+    "description": "Hỏi kiến thức về REST API, Sanctum, Vue 3 Composition API",
+    "status": "todo",
+    "priority": "high"
+}
+
+### -------------------------------------------------------------
+
+### 7. Lấy Danh Sách Công Việc Của Dự Án Vừa Tạo
+GET {{baseUrl}}/tasks?project_id={{projectId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### -------------------------------------------------------------
+
+### 8. Đăng xuất (Logout)
+POST {{baseUrl}}/logout
+Authorization: Bearer {{token}}
+Accept: application/json
