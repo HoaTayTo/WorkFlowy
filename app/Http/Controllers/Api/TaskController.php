@@ -16,13 +16,13 @@ class TaskController extends Controller
 
         // Nếu KHÔNG PHẢI admin
         if (!$request->user()->isAdmin()) {
-            $query->whereHas('project', function ($q) use ($request) {
-                // Lấy Task nếu thuộc Project của mình
-                $q->where('user_id', $request->user()->id)
-                  // Hoặc thuộc Project mà mình ĐƯỢC MỜI tham gia (có chứa ít nhất 1 task gán cho mình)
-                  ->orWhereHas('tasks', function ($tq) use ($request) {
-                      $tq->where('assignee_id', $request->user()->id);
-                  });
+            $query->where(function ($q) use ($request) {
+                // Thấy TẤT CẢ task nếu mình là chủ dự án đó
+                $q->whereHas('project', function ($pq) use ($request) {
+                    $pq->where('user_id', $request->user()->id);
+                })
+                // HOẶC chỉ thấy những task MÌNH ĐƯỢC GIAO
+                ->orWhere('assignee_id', $request->user()->id);
             });
         }
 
@@ -48,8 +48,8 @@ class TaskController extends Controller
 
         $project = Project::findOrFail($request->project_id);
         
-        // Nếu nhìn thấy bảng Kanban của project thì có quyền tạo thẻ công việc
-        Gate::authorize('view', $project);
+        // Phải là chủ dự án (hoặc Admin có Gate before) mới được tạo thẻ công việc mới
+        Gate::authorize('update', $project);
 
         $task = Task::create($request->all());
 

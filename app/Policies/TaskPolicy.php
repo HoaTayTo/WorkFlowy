@@ -21,8 +21,8 @@ class TaskPolicy
      */
     public function view(User $user, Task $task): bool
     {
-        // Có thể xem Task nếu là chủ dự án HOẶC có tham gia dự án (được giao ít nhất 1 task)
-        return $user->id === $task->project->user_id || $task->project->tasks()->where('assignee_id', $user->id)->exists();
+        // Có thể xem Task nếu là chủ dự án HOẶC chính task này ĐƯỢC GIAO CHO MÌNH
+        return $user->id === $task->project->user_id || $task->assignee_id === $user->id;
     }
 
     /**
@@ -38,8 +38,8 @@ class TaskPolicy
      */
     public function update(User $user, Task $task): bool
     {
-        // Có thể Kéo-Thả, Sửa trạng thái nếu là chủ dự án HOẶC có tham gia dự án
-        return $user->id === $task->project->user_id || $task->project->tasks()->where('assignee_id', $user->id)->exists();
+        // Có thể Kéo-Thả, Sửa trạng thái nếu là chủ dự án HOẶC task này ĐƯỢC GIAO CHO MÌNH
+        return $user->id === $task->project->user_id || $task->assignee_id === $user->id;
     }
 
     /**

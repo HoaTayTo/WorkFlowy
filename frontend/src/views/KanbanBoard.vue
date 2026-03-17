@@ -15,7 +15,7 @@
                     </div>
                 </div>
                 <!-- Nút thêm Task -->
-                <button @click="showTaskModal = true" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md font-medium text-sm transition shadow-sm flex items-center space-x-2">
+                <button v-if="canCreateTask" @click="showTaskModal = true" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md font-medium text-sm transition shadow-sm flex items-center space-x-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
                     </svg>
@@ -51,7 +51,7 @@
                                         {{ task.assignee.name.charAt(0).toUpperCase() }}
                                     </div>
                                     <button @click="openTaskDetails(task)" class="text-indigo-400 hover:text-indigo-600" title="Bình luận/Chi tiết">💬</button>
-                                    <button @click="deleteTask(task.id)" class="text-red-400 hover:text-red-600" title="Xóa">X</button>
+                                    <button v-if="canCreateTask" @click="deleteTask(task.id)" class="text-red-400 hover:text-red-600" title="Xóa">X</button>
                                 </div>
                             </div>
                         </div>
@@ -78,7 +78,7 @@
                                         {{ task.assignee.name.charAt(0).toUpperCase() }}
                                     </div>
                                     <button @click="openTaskDetails(task)" class="text-indigo-400 hover:text-indigo-600" title="Bình luận/Chi tiết">💬</button>
-                                    <button @click="deleteTask(task.id)" class="text-red-400 hover:text-red-600" title="Xóa">X</button>
+                                    <button v-if="canCreateTask" @click="deleteTask(task.id)" class="text-red-400 hover:text-red-600" title="Xóa">X</button>
                                 </div>
                             </div>
                         </div>
@@ -105,7 +105,7 @@
                                         {{ task.assignee.name.charAt(0).toUpperCase() }}
                                     </div>
                                     <button @click="openTaskDetails(task)" class="text-indigo-400 hover:text-indigo-600" title="Bình luận/Chi tiết">💬</button>
-                                    <button @click="deleteTask(task.id)" class="text-red-400 hover:text-red-600" title="Xóa">X</button>
+                                    <button v-if="canCreateTask" @click="deleteTask(task.id)" class="text-red-400 hover:text-red-600" title="Xóa">X</button>
                                 </div>
                             </div>
                         </div>
@@ -132,7 +132,7 @@
                                         {{ task.assignee.name.charAt(0).toUpperCase() }}
                                     </div>
                                     <button @click="openTaskDetails(task)" class="text-indigo-400 hover:text-indigo-600" title="Bình luận/Chi tiết">💬</button>
-                                    <button @click="deleteTask(task.id)" class="text-red-400 hover:text-red-600" title="Xóa">X</button>
+                                    <button v-if="canCreateTask" @click="deleteTask(task.id)" class="text-red-400 hover:text-red-600" title="Xóa">X</button>
                                 </div>
                             </div>
                         </div>
@@ -240,7 +240,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useProjectStore } from '../stores/project';
 import { useTaskStore } from '../stores/task';
@@ -277,6 +277,12 @@ const taskComments = ref([]);
 const newComment = ref('');
 const isLoadingComments = ref(false);
 const isSubmittingComment = ref(false);
+
+// Kiểm tra quyền: Chỉ chủ dự án HOẶC Admin mới được Tạo mới / Xóa Task
+const canCreateTask = computed(() => {
+    if (!projectStore.currentProject || !authStore.user) return false;
+    return authStore.user.role === 'admin' || projectStore.currentProject.user_id === authStore.user.id;
+});
 
 // Load dữ liệu khi lên màn hình
 onMounted(async () => {
