@@ -16,8 +16,8 @@
 
         <main>
             <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-                <!-- Chỗ tạo dự án mới -->
-                <div class="mb-6 bg-white shadow rounded-lg p-6">
+                <!-- Chỗ tạo dự án mới (Chỉ Admin mới có quyền tạo dự án) -->
+                <div v-if="authStore.user?.role === 'admin'" class="mb-6 bg-white shadow rounded-lg p-6">
                     <h2 class="text-lg font-medium text-gray-900 mb-4">Tạo Dự Án Mới</h2>
                     <form @submit.prevent="handleCreateProject" class="flex gap-4">
                         <input v-model="newProjectName" type="text" required placeholder="Nhập tên dự án (VD: Phát triển Website Bán Hàng)" class="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">

@@ -29,7 +29,7 @@ class ProjectPolicy
      */
     public function create(User $user): bool
     {
-        return true; // Ai login rồi cũng được phép tạo
+        return false; // User không được tạo Dự án (Role Admin sẽ được tự động pass qua nhờ Gate::before)
     }
 
     /**

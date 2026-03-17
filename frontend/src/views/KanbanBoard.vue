@@ -40,8 +40,9 @@
                         <span class="bg-gray-200 text-gray-600 text-xs px-2 py-1 rounded-full font-bold">{{ taskStore.todoTasks.length }}</span>
                     </div>
                     <div class="p-3 flex-1 overflow-y-auto space-y-3">
-                        <div v-for="task in taskStore.todoTasks" :key="task.id" draggable="true" @dragstart="onDragStart($event, task.id)"
-                            class="bg-white p-4 rounded shadow-sm border border-gray-200 cursor-grab hover:shadow-md transition">
+                        <div v-for="task in taskStore.todoTasks" :key="task.id" :draggable="!isAdmin" @dragstart="onDragStart($event, task.id)"
+                            :class="{'cursor-grab hover:shadow-md': !isAdmin, 'cursor-default': isAdmin}"
+                            class="bg-white p-4 rounded shadow-sm border border-gray-200 transition">
                             <h4 class="font-medium text-gray-900 mb-1">{{ task.title }}</h4>
                             <p class="text-xs text-gray-500 mb-3">{{ task.description }}</p>
                             <div class="flex justify-between items-center mt-3">
@@ -67,8 +68,9 @@
                         <span class="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full font-bold">{{ taskStore.inProgressTasks.length }}</span>
                     </div>
                     <div class="p-3 flex-1 overflow-y-auto space-y-3">
-                        <div v-for="task in taskStore.inProgressTasks" :key="task.id" draggable="true" @dragstart="onDragStart($event, task.id)"
-                            class="bg-white p-4 rounded shadow-sm border border-blue-200 cursor-grab hover:shadow-md transition">
+                        <div v-for="task in taskStore.inProgressTasks" :key="task.id" :draggable="!isAdmin" @dragstart="onDragStart($event, task.id)"
+                            :class="{'cursor-grab hover:shadow-md': !isAdmin, 'cursor-default': isAdmin}"
+                            class="bg-white p-4 rounded shadow-sm border border-blue-200 transition">
                             <h4 class="font-medium text-gray-900 mb-1">{{ task.title }}</h4>
                             <p class="text-xs text-gray-500 mb-3">{{ task.description }}</p>
                             <div class="flex justify-between items-center mt-3">
@@ -94,8 +96,9 @@
                         <span class="bg-orange-100 text-orange-700 text-xs px-2 py-1 rounded-full font-bold">{{ taskStore.reviewTasks.length }}</span>
                     </div>
                     <div class="p-3 flex-1 overflow-y-auto space-y-3">
-                        <div v-for="task in taskStore.reviewTasks" :key="task.id" draggable="true" @dragstart="onDragStart($event, task.id)"
-                            class="bg-white p-4 rounded shadow-sm border border-orange-200 cursor-grab hover:shadow-md transition">
+                        <div v-for="task in taskStore.reviewTasks" :key="task.id" :draggable="!isAdmin" @dragstart="onDragStart($event, task.id)"
+                            :class="{'cursor-grab hover:shadow-md': !isAdmin, 'cursor-default': isAdmin}"
+                            class="bg-white p-4 rounded shadow-sm border border-orange-200 transition">
                             <h4 class="font-medium text-gray-900 mb-1">{{ task.title }}</h4>
                             <p class="text-xs text-gray-500 mb-3">{{ task.description }}</p>
                             <div class="flex justify-between items-center mt-3">
@@ -121,8 +124,9 @@
                         <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-bold">{{ taskStore.doneTasks.length }}</span>
                     </div>
                     <div class="p-3 flex-1 overflow-y-auto space-y-3">
-                        <div v-for="task in taskStore.doneTasks" :key="task.id" draggable="true" @dragstart="onDragStart($event, task.id)"
-                            class="bg-white p-4 rounded shadow-sm border border-green-200 cursor-grab hover:shadow-md transition opacity-75 hover:opacity-100">
+                        <div v-for="task in taskStore.doneTasks" :key="task.id" :draggable="!isAdmin" @dragstart="onDragStart($event, task.id)"
+                            :class="{'cursor-grab hover:shadow-md': !isAdmin, 'cursor-default': isAdmin}"
+                            class="bg-white p-4 rounded shadow-sm border border-green-200 transition opacity-75 hover:opacity-100">
                             <h4 class="font-medium text-gray-900 mb-1 line-through">{{ task.title }}</h4>
                             <p class="text-xs text-gray-500 mb-3">{{ task.description }}</p>
                             <div class="flex justify-between items-center mt-3">
@@ -284,6 +288,8 @@ const canCreateTask = computed(() => {
     return authStore.user.role === 'admin' || projectStore.currentProject.user_id === authStore.user.id;
 });
 
+const isAdmin = computed(() => authStore.user?.role === 'admin');
+
 // Load dữ liệu khi lên màn hình
 onMounted(async () => {
     // Kéo thông tin dự án hiện tại
@@ -291,17 +297,23 @@ onMounted(async () => {
     // Kéo tất cả tasks của dự án hiện tại
     await taskStore.fetchTasks(props.id);
     
-    // Lấy danh sách toàn bộ User để cho phép "Giao Việc"
-    try {
-        const response = await api.get('/users');
-        usersList.value = response.data;
-    } catch (e) {
-        console.error("Lỗi lấy danh sách user:", e);
+    // Lấy danh sách toàn bộ User để cho phép "Giao Việc" (Thực ra cũng chỉ Admin mới cần)
+    if (isAdmin.value) {
+        try {
+            const response = await api.get('/users');
+            usersList.value = response.data;
+        } catch (e) {
+            console.error("Lỗi lấy danh sách user:", e);
+        }
     }
 });
 
 // Logic Kéo - Thả (Drag and Drop HTML5)
 const onDragStart = (event, taskId) => {
+    if (isAdmin.value) {
+        event.preventDefault();
+        return;
+    }
     event.dataTransfer.dropEffect = 'move';
     event.dataTransfer.effectAllowed = 'move';
     // Đính kèm ID của task vào sự kiện di chuột
@@ -309,6 +321,8 @@ const onDragStart = (event, taskId) => {
 };
 
 const onDrop = async (event, newStatus) => {
+    if (isAdmin.value) return;
+    
     // Lấy ID của task đã lưu lúc nãy
     const taskId = event.dataTransfer.getData('taskId');
     if (taskId) {
