@@ -17,8 +17,14 @@ class ProjectController extends Controller
             return response()->json(Project::with('user')->get());
         }
         
-        // Người dùng thường chỉ thấy project của mình
-        return response()->json($request->user()->projects);
+        // Người dùng thường: Thấy Project CỦA MÌNH + Project CỦA NGƯỜI KHÁC (nhưng có giao việc cho mình)
+        return response()->json(
+            Project::where('user_id', $request->user()->id)
+                ->orWhereHas('tasks', function ($q) use ($request) {
+                    $q->where('assignee_id', $request->user()->id);
+                })
+                ->get()
+        );
     }
 
     public function store(Request $request)

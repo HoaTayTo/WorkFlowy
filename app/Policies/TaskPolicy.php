@@ -21,7 +21,8 @@ class TaskPolicy
      */
     public function view(User $user, Task $task): bool
     {
-        return $user->id === $task->project->user_id;
+        // Có thể xem Task nếu là chủ dự án HOẶC có tham gia dự án (được giao ít nhất 1 task)
+        return $user->id === $task->project->user_id || $task->project->tasks()->where('assignee_id', $user->id)->exists();
     }
 
     /**
@@ -29,7 +30,7 @@ class TaskPolicy
      */
     public function create(User $user): bool
     {
-        return true; // We check project ownership inside the controller itself during creation.
+        return true; 
     }
 
     /**
@@ -37,7 +38,8 @@ class TaskPolicy
      */
     public function update(User $user, Task $task): bool
     {
-        return $user->id === $task->project->user_id;
+        // Có thể Kéo-Thả, Sửa trạng thái nếu là chủ dự án HOẶC có tham gia dự án
+        return $user->id === $task->project->user_id || $task->project->tasks()->where('assignee_id', $user->id)->exists();
     }
 
     /**
@@ -45,6 +47,7 @@ class TaskPolicy
      */
     public function delete(User $user, Task $task): bool
     {
+        // Chỉ chủ dự án gốc mới có quyền xóa bỏ vĩnh viễn thẻ tính năng này.
         return $user->id === $task->project->user_id;
     }
 
