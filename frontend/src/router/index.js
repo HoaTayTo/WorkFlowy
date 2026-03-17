@@ -14,6 +14,13 @@ const routes = [
         name: 'dashboard',
         component: () => import('../views/Dashboard.vue'),
         meta: { requiresAuth: true } // Phải đăng nhập mới được vào
+    },
+    {
+        path: '/projects/:id',
+        name: 'kanban',
+        component: () => import('../views/KanbanBoard.vue'),
+        props: true, // Kích hoạt truyền :id vào component KanbanBoard.vue
+        meta: { requiresAuth: true }
     }
 ];
 
