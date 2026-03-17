@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Task;
 use App\Models\Project;
+use App\Models\Task;
+use App\Notifications\TaskAssigned;
+use App\Notifications\TaskStatusUpdated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
@@ -53,6 +55,10 @@ class TaskController extends Controller
 
         $task = Task::create($request->all());
 
+        if ($task->assignee_id && $task->assignee_id !== $request->user()->id) {
+            $task->assignee->notify(new TaskAssigned($task, $request->user()));
+        }
+
         return response()->json($task, 201);
     }
 
@@ -75,7 +81,20 @@ class TaskController extends Controller
             'assignee_id' => 'nullable|exists:users,id'
         ]);
 
+        $oldStatus = $task->status;
+        $oldAssignee = $task->assignee_id;
+
         $task->update($request->all());
+
+        // Nếu trạng thái bị đổi, báo cho chủ dự án
+        if ($oldStatus !== $task->status && $task->project->user_id !== $request->user()->id) {
+            $task->project->user->notify(new TaskStatusUpdated($task, $request->user(), $task->status));
+        }
+
+        // Nếu assignee bị thay đổi (Giao việc mới cho ai đó)
+        if ($oldAssignee !== $task->assignee_id && $task->assignee_id && $task->assignee_id !== $request->user()->id) {
+            $task->assignee->notify(new TaskAssigned($task, $request->user()));
+        }
 
         return response()->json($task);
     }

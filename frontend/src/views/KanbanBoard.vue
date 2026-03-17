@@ -14,13 +14,18 @@
                         <p class="text-xs text-gray-500">{{ projectStore.currentProject?.description }}</p>
                     </div>
                 </div>
-                <!-- Nút thêm Task -->
-                <button v-if="canCreateTask" @click="showTaskModal = true" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md font-medium text-sm transition shadow-sm flex items-center space-x-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
-                    </svg>
-                    <span>Thêm Công Việc</span>
-                </button>
+                <!-- Khối công cụ bên phải -->
+                <div class="flex items-center space-x-3">
+                    <NotificationDropdown />
+                    
+                    <!-- Nút thêm Task -->
+                    <button v-if="canCreateTask" @click="showTaskModal = true" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md font-medium text-sm transition shadow-sm flex items-center space-x-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+                        </svg>
+                        <span>Thêm Công Việc</span>
+                    </button>
+                </div>
             </div>
         </header>
 
@@ -250,6 +255,7 @@ import { useProjectStore } from '../stores/project';
 import { useTaskStore } from '../stores/task';
 import { useAuthStore } from '../stores/auth';
 import api from '../api';
+import NotificationDropdown from '../components/NotificationDropdown.vue';
 
 // Prop id được Vue Router tự động ném vào (đã bật props: true)
 const props = defineProps({

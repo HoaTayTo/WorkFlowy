@@ -20,4 +20,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('tasks/{task}/comments', [\App\Http\Controllers\CommentController::class, 'index']);
     Route::post('tasks/{task}/comments', [\App\Http\Controllers\CommentController::class, 'store']);
     Route::delete('comments/{comment}', [\App\Http\Controllers\CommentController::class, 'destroy']);
+
+    // API Thông báo (Notifications)
+    Route::get('/notifications', [\App\Http\Controllers\Api\NotificationController::class, 'index']);
+    Route::post('/notifications/mark-all-read', [\App\Http\Controllers\Api\NotificationController::class, 'markAllAsRead']);
+    Route::post('/notifications/{id}/read', [\App\Http\Controllers\Api\NotificationController::class, 'markAsRead']);
 });

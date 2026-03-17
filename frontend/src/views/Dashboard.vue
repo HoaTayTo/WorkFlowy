@@ -4,6 +4,7 @@
             <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
                 <h1 class="text-2xl font-bold text-white">WorkFlowy</h1>
                 <div class="flex items-center space-x-4">
+                    <NotificationDropdown iconClass="text-indigo-200 hover:text-white" />
                     <span class="text-sm text-indigo-100" v-if="authStore.user">
                         Xin chào, {{ authStore.user.name }}
                     </span>
@@ -52,6 +53,7 @@ import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 import { useProjectStore } from '../stores/project';
+import NotificationDropdown from '../components/NotificationDropdown.vue';
 
 const router = useRouter();
 const authStore = useAuthStore();
