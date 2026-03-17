@@ -14,4 +14,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('projects', \App\Http\Controllers\Api\ProjectController::class);
     Route::apiResource('tasks', \App\Http\Controllers\Api\TaskController::class);
+
+    // Bổ sung API Bình luận
+    Route::get('tasks/{task}/comments', [\App\Http\Controllers\CommentController::class, 'index']);
+    Route::post('tasks/{task}/comments', [\App\Http\Controllers\CommentController::class, 'store']);
+    Route::delete('comments/{comment}', [\App\Http\Controllers\CommentController::class, 'destroy']);
 });

@@ -46,7 +46,10 @@
                             <p class="text-xs text-gray-500 mb-3">{{ task.description }}</p>
                             <div class="flex justify-between items-center">
                                 <span :class="getPriorityClass(task.priority)" class="text-xs px-2 py-1 rounded-md font-medium">{{ getPriorityText(task.priority) }}</span>
-                                <button @click="deleteTask(task.id)" class="text-red-400 hover:text-red-600" title="Xóa">X</button>
+                                <div class="flex space-x-2">
+                                    <button @click="openTaskDetails(task)" class="text-indigo-400 hover:text-indigo-600" title="Bình luận/Chi tiết">💬</button>
+                                    <button @click="deleteTask(task.id)" class="text-red-400 hover:text-red-600" title="Xóa">X</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -67,7 +70,10 @@
                             <p class="text-xs text-gray-500 mb-3">{{ task.description }}</p>
                             <div class="flex justify-between items-center">
                                 <span :class="getPriorityClass(task.priority)" class="text-xs px-2 py-1 rounded-md font-medium">{{ getPriorityText(task.priority) }}</span>
-                                <button @click="deleteTask(task.id)" class="text-red-400 hover:text-red-600" title="Xóa">X</button>
+                                <div class="flex space-x-2">
+                                    <button @click="openTaskDetails(task)" class="text-indigo-400 hover:text-indigo-600" title="Bình luận/Chi tiết">💬</button>
+                                    <button @click="deleteTask(task.id)" class="text-red-400 hover:text-red-600" title="Xóa">X</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -88,7 +94,10 @@
                             <p class="text-xs text-gray-500 mb-3">{{ task.description }}</p>
                             <div class="flex justify-between items-center">
                                 <span :class="getPriorityClass(task.priority)" class="text-xs px-2 py-1 rounded-md font-medium">{{ getPriorityText(task.priority) }}</span>
-                                <button @click="deleteTask(task.id)" class="text-red-400 hover:text-red-600" title="Xóa">X</button>
+                                <div class="flex space-x-2">
+                                    <button @click="openTaskDetails(task)" class="text-indigo-400 hover:text-indigo-600" title="Bình luận/Chi tiết">💬</button>
+                                    <button @click="deleteTask(task.id)" class="text-red-400 hover:text-red-600" title="Xóa">X</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -109,7 +118,10 @@
                             <p class="text-xs text-gray-500 mb-3">{{ task.description }}</p>
                             <div class="flex justify-between items-center">
                                 <span :class="getPriorityClass(task.priority)" class="text-xs px-2 py-1 rounded-md font-medium">{{ getPriorityText(task.priority) }}</span>
-                                <button @click="deleteTask(task.id)" class="text-red-400 hover:text-red-600" title="Xóa">X</button>
+                                <div class="flex space-x-2">
+                                    <button @click="openTaskDetails(task)" class="text-indigo-400 hover:text-indigo-600" title="Bình luận/Chi tiết">💬</button>
+                                    <button @click="deleteTask(task.id)" class="text-red-400 hover:text-red-600" title="Xóa">X</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -145,6 +157,57 @@
                 </form>
             </div>
         </div>
+
+        <!-- Chi Tiết Task & Xử lý Bình Luận Modal -->
+        <div v-if="showDetailsModal && selectedTask" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div class="bg-white rounded-lg p-6 w-full max-w-2xl shadow-xl flex flex-col max-h-[90vh]">
+                <!-- Header Modal -->
+                <div class="flex justify-between items-start mb-4 border-b pb-4">
+                    <div>
+                        <h3 class="text-2xl font-bold text-gray-900">{{ selectedTask.title }}</h3>
+                        <p class="text-sm text-gray-500 mt-1 whitespace-pre-wrap">{{ selectedTask.description || 'Không có mô tả' }}</p>
+                    </div>
+                    <button @click="closeTaskDetails" class="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
+                </div>
+
+                <!-- List Comments (Có thanh cuộn) -->
+                <div class="flex-1 overflow-y-auto space-y-4 pr-2 pb-4">
+                    <h4 class="font-semibold text-gray-700 sticky top-0 bg-white py-2">Bình luận ({{ taskComments.length }})</h4>
+                    
+                    <div v-if="isLoadingComments" class="text-center text-sm text-gray-500 py-4">Đang tải bình luận...</div>
+                    <div v-else-if="taskComments.length === 0" class="text-center text-sm text-gray-400 py-4 italic">Chưa có bình luận nào.</div>
+                    
+                    <!-- Hiển thị từng bình luận -->
+                    <div v-for="comment in taskComments" :key="comment.id" class="bg-gray-50 rounded-lg p-3 relative group">
+                        <div class="flex justify-between items-start">
+                            <span class="font-medium text-sm text-indigo-700">{{ comment.user?.name || 'Ai đó' }}</span>
+                            <span class="text-xs text-gray-400">{{ new Date(comment.created_at).toLocaleString('vi-VN') }}</span>
+                        </div>
+                        <p class="text-gray-700 text-sm mt-1 whitespace-pre-wrap">{{ comment.content }}</p>
+                        
+                        <!-- Nút Xóa Comment (hiện khi thẻ bị hover) -->
+                        <button v-if="canDeleteComment(comment.user_id)" @click="deleteComment(comment.id)" 
+                            class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 bg-white rounded-full p-1 shadow-sm transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Input viết bình luận mới -->
+                <div class="mt-4 border-t pt-4">
+                    <form @submit.prevent="submitComment" class="flex gap-2">
+                        <input v-model="newComment" type="text" placeholder="Viết bình luận..." required
+                            class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 text-sm" />
+                        <button type="submit" :disabled="isSubmittingComment"
+                            class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition disabled:opacity-50 text-sm font-medium">
+                            Gửi
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -153,6 +216,8 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useProjectStore } from '../stores/project';
 import { useTaskStore } from '../stores/task';
+import { useAuthStore } from '../stores/auth';
+import api from '../api';
 
 // Prop id được Vue Router tự động ném vào (đã bật props: true)
 const props = defineProps({
@@ -165,6 +230,7 @@ const props = defineProps({
 const router = useRouter();
 const projectStore = useProjectStore();
 const taskStore = useTaskStore();
+const authStore = useAuthStore();
 
 const showTaskModal = ref(false);
 const newTask = ref({
@@ -172,6 +238,14 @@ const newTask = ref({
     description: '',
     priority: 'medium',
 });
+
+// State quản lý việc xem chi tiết và Comment
+const showDetailsModal = ref(false);
+const selectedTask = ref(null);
+const taskComments = ref([]);
+const newComment = ref('');
+const isLoadingComments = ref(false);
+const isSubmittingComment = ref(false);
 
 // Load dữ liệu khi lên màn hình
 onMounted(async () => {
@@ -233,6 +307,65 @@ const getPriorityClass = (priority) => {
         case 'medium': return 'bg-yellow-100 text-yellow-700 border border-yellow-200';
         case 'low': return 'bg-blue-100 text-blue-700 border border-blue-200';
         default: return 'bg-gray-100 text-gray-700';
+    }
+};
+
+// ================= LOGIC BÌNH LUẬN & CHI TIẾT TASK =================
+const openTaskDetails = async (task) => {
+    selectedTask.value = task;
+    showDetailsModal.value = true;
+    taskComments.value = []; // reset cũ
+    
+    // Gọi API lấy comment
+    isLoadingComments.value = true;
+    try {
+        const response = await api.get(`/tasks/${task.id}/comments`);
+        taskComments.value = response.data;
+    } catch (error) {
+        console.error("Lỗi lấy bình luận:", error);
+    } finally {
+        isLoadingComments.value = false;
+    }
+};
+
+const closeTaskDetails = () => {
+    showDetailsModal.value = false;
+    selectedTask.value = null;
+    newComment.value = '';
+};
+
+const submitComment = async () => {
+    if (!newComment.value.trim() || !selectedTask.value) return;
+    
+    isSubmittingComment.value = true;
+    try {
+        const response = await api.post(`/tasks/${selectedTask.value.id}/comments`, {
+            content: newComment.value
+        });
+        // Nhồi bình luận mới vào danh sách hiện tại để UI tự update
+        taskComments.value.push(response.data);
+        newComment.value = ''; // xóa ô nhập
+    } catch (error) {
+        console.error("Lỗi đăng bình luận:", error);
+    } finally {
+        isSubmittingComment.value = false;
+    }
+};
+
+const canDeleteComment = (commentUserId) => {
+    // Chỉ cho phép xóa nếu là chủ nhân comment, HOẶC user đang login có role là admin
+    return commentUserId === authStore.user?.id || authStore.user?.role === 'admin';
+};
+
+const deleteComment = async (commentId) => {
+    if (!confirm("Xóa bình luận này?")) return;
+    
+    try {
+        await api.delete(`/comments/${commentId}`);
+        // Lọc khỏi mảng để UI tự gạch bỏ
+        taskComments.value = taskComments.value.filter(c => c.id !== commentId);
+    } catch (error) {
+        console.error("Lỗi xóa bình luận:", error);
     }
 };
 </script>
