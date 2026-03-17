@@ -44,9 +44,12 @@
                             class="bg-white p-4 rounded shadow-sm border border-gray-200 cursor-grab hover:shadow-md transition">
                             <h4 class="font-medium text-gray-900 mb-1">{{ task.title }}</h4>
                             <p class="text-xs text-gray-500 mb-3">{{ task.description }}</p>
-                            <div class="flex justify-between items-center">
+                            <div class="flex justify-between items-center mt-3">
                                 <span :class="getPriorityClass(task.priority)" class="text-xs px-2 py-1 rounded-md font-medium">{{ getPriorityText(task.priority) }}</span>
-                                <div class="flex space-x-2">
+                                <div class="flex items-center space-x-3">
+                                    <div v-if="task.assignee" class="h-6 w-6 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xs font-bold" :title="'Được giao cho: ' + task.assignee.name">
+                                        {{ task.assignee.name.charAt(0).toUpperCase() }}
+                                    </div>
                                     <button @click="openTaskDetails(task)" class="text-indigo-400 hover:text-indigo-600" title="Bình luận/Chi tiết">💬</button>
                                     <button @click="deleteTask(task.id)" class="text-red-400 hover:text-red-600" title="Xóa">X</button>
                                 </div>
@@ -68,9 +71,12 @@
                             class="bg-white p-4 rounded shadow-sm border border-blue-200 cursor-grab hover:shadow-md transition">
                             <h4 class="font-medium text-gray-900 mb-1">{{ task.title }}</h4>
                             <p class="text-xs text-gray-500 mb-3">{{ task.description }}</p>
-                            <div class="flex justify-between items-center">
+                            <div class="flex justify-between items-center mt-3">
                                 <span :class="getPriorityClass(task.priority)" class="text-xs px-2 py-1 rounded-md font-medium">{{ getPriorityText(task.priority) }}</span>
-                                <div class="flex space-x-2">
+                                <div class="flex items-center space-x-3">
+                                    <div v-if="task.assignee" class="h-6 w-6 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xs font-bold" :title="'Được giao cho: ' + task.assignee.name">
+                                        {{ task.assignee.name.charAt(0).toUpperCase() }}
+                                    </div>
                                     <button @click="openTaskDetails(task)" class="text-indigo-400 hover:text-indigo-600" title="Bình luận/Chi tiết">💬</button>
                                     <button @click="deleteTask(task.id)" class="text-red-400 hover:text-red-600" title="Xóa">X</button>
                                 </div>
@@ -92,9 +98,12 @@
                             class="bg-white p-4 rounded shadow-sm border border-orange-200 cursor-grab hover:shadow-md transition">
                             <h4 class="font-medium text-gray-900 mb-1">{{ task.title }}</h4>
                             <p class="text-xs text-gray-500 mb-3">{{ task.description }}</p>
-                            <div class="flex justify-between items-center">
+                            <div class="flex justify-between items-center mt-3">
                                 <span :class="getPriorityClass(task.priority)" class="text-xs px-2 py-1 rounded-md font-medium">{{ getPriorityText(task.priority) }}</span>
-                                <div class="flex space-x-2">
+                                <div class="flex items-center space-x-3">
+                                    <div v-if="task.assignee" class="h-6 w-6 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xs font-bold" :title="'Được giao cho: ' + task.assignee.name">
+                                        {{ task.assignee.name.charAt(0).toUpperCase() }}
+                                    </div>
                                     <button @click="openTaskDetails(task)" class="text-indigo-400 hover:text-indigo-600" title="Bình luận/Chi tiết">💬</button>
                                     <button @click="deleteTask(task.id)" class="text-red-400 hover:text-red-600" title="Xóa">X</button>
                                 </div>
@@ -116,9 +125,12 @@
                             class="bg-white p-4 rounded shadow-sm border border-green-200 cursor-grab hover:shadow-md transition opacity-75 hover:opacity-100">
                             <h4 class="font-medium text-gray-900 mb-1 line-through">{{ task.title }}</h4>
                             <p class="text-xs text-gray-500 mb-3">{{ task.description }}</p>
-                            <div class="flex justify-between items-center">
+                            <div class="flex justify-between items-center mt-3">
                                 <span :class="getPriorityClass(task.priority)" class="text-xs px-2 py-1 rounded-md font-medium">{{ getPriorityText(task.priority) }}</span>
-                                <div class="flex space-x-2">
+                                <div class="flex items-center space-x-3">
+                                    <div v-if="task.assignee" class="h-6 w-6 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xs font-bold" :title="'Được giao cho: ' + task.assignee.name">
+                                        {{ task.assignee.name.charAt(0).toUpperCase() }}
+                                    </div>
                                     <button @click="openTaskDetails(task)" class="text-indigo-400 hover:text-indigo-600" title="Bình luận/Chi tiết">💬</button>
                                     <button @click="deleteTask(task.id)" class="text-red-400 hover:text-red-600" title="Xóa">X</button>
                                 </div>
@@ -141,6 +153,13 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Mô tả chi tiết</label>
                         <textarea v-model="newTask.description" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm border p-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Người thực hiện</label>
+                        <select v-model="newTask.assignee_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm border p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            <option :value="null">Không giao cho ai</option>
+                            <option v-for="u in usersList" :key="u.id" :value="u.id">{{ u.name }} ({{ u.email }})</option>
+                        </select>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Mức độ ưu tiên</label>
@@ -166,6 +185,15 @@
                     <div>
                         <h3 class="text-2xl font-bold text-gray-900">{{ selectedTask.title }}</h3>
                         <p class="text-sm text-gray-500 mt-1 whitespace-pre-wrap">{{ selectedTask.description || 'Không có mô tả' }}</p>
+                        <div v-if="selectedTask.assignee" class="mt-3 flex items-center space-x-2">
+                            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Người thực hiện:</span>
+                            <div class="flex items-center space-x-2 bg-indigo-50 px-2 py-1 rounded border border-indigo-100">
+                                <div class="h-5 w-5 rounded-full bg-indigo-500 text-white flex items-center justify-center text-[10px] font-bold">
+                                    {{ selectedTask.assignee.name.charAt(0).toUpperCase() }}
+                                </div>
+                                <span class="text-sm font-medium text-indigo-700">{{ selectedTask.assignee.name }}</span>
+                            </div>
+                        </div>
                     </div>
                     <button @click="closeTaskDetails" class="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
                 </div>
@@ -237,7 +265,10 @@ const newTask = ref({
     title: '',
     description: '',
     priority: 'medium',
+    assignee_id: null,
 });
+
+const usersList = ref([]);
 
 // State quản lý việc xem chi tiết và Comment
 const showDetailsModal = ref(false);
@@ -253,6 +284,14 @@ onMounted(async () => {
     await projectStore.fetchProjectById(props.id);
     // Kéo tất cả tasks của dự án hiện tại
     await taskStore.fetchTasks(props.id);
+    
+    // Lấy danh sách toàn bộ User để cho phép "Giao Việc"
+    try {
+        const response = await api.get('/users');
+        usersList.value = response.data;
+    } catch (e) {
+        console.error("Lỗi lấy danh sách user:", e);
+    }
 });
 
 // Logic Kéo - Thả (Drag and Drop HTML5)
@@ -281,12 +320,17 @@ const handleCreateTask = async () => {
         title: newTask.value.title,
         description: newTask.value.description,
         priority: newTask.value.priority,
+        assignee_id: newTask.value.assignee_id,
         status: 'todo' // Mặc định ở cột Đầu Tiên
     });
     
+    // Tải lại list tasks nới chứa cả `assignee` bị giấu nếu cần (Store của mình tự trả về task sau khi tạo ko load assignee)
+    // Tốt nhất là refetch lại nhẹ 1 lần hoặc store tự config
+    await taskStore.fetchTasks(props.id);
+
     // Đóng popup & reset form
     showTaskModal.value = false;
-    newTask.value = { title: '', description: '', priority: 'medium' };
+    newTask.value = { title: '', description: '', priority: 'medium', assignee_id: null };
 };
 
 const deleteTask = async (id) => {
