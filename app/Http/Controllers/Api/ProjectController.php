@@ -5,16 +5,26 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Project;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class ProjectController extends Controller
 {
     public function index(Request $request)
     {
+        // Admin xem được tất cả project
+        if ($request->user()->isAdmin()) {
+            // Load all projects with their owners for better UI display later
+            return response()->json(Project::with('user')->get());
+        }
+        
+        // Người dùng thường chỉ thấy project của mình
         return response()->json($request->user()->projects);
     }
 
     public function store(Request $request)
     {
+        Gate::authorize('create', Project::class);
+
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string'
@@ -27,9 +37,7 @@ class ProjectController extends Controller
 
     public function show(Request $request, Project $project)
     {
-        if ($project->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
+        Gate::authorize('view', $project);
         
         // Return project with tasks
         return response()->json($project->load('tasks.assignee'));
@@ -37,9 +45,7 @@ class ProjectController extends Controller
 
     public function update(Request $request, Project $project)
     {
-        if ($project->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
+        Gate::authorize('update', $project);
 
         $request->validate([
             'name' => 'sometimes|required|string|max:255',
@@ -53,9 +59,7 @@ class ProjectController extends Controller
 
     public function destroy(Request $request, Project $project)
     {
-        if ($project->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
+        Gate::authorize('delete', $project);
 
         $project->delete();
 

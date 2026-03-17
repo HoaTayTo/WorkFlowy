@@ -6,14 +6,20 @@ use App\Http\Controllers\Controller;
 use App\Models\Task;
 use App\Models\Project;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class TaskController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Task::whereHas('project', function ($q) use ($request) {
-            $q->where('user_id', $request->user()->id);
-        });
+        $query = Task::query();
+
+        // Nếu KHÔNG PHẢI admin, chỉ lấy Task thuộc chi nhánh dự án do mình làm chủ
+        if (!$request->user()->isAdmin()) {
+            $query->whereHas('project', function ($q) use ($request) {
+                $q->where('user_id', $request->user()->id);
+            });
+        }
 
         if ($request->has('project_id')) {
             $query->where('project_id', $request->project_id);
@@ -24,6 +30,8 @@ class TaskController extends Controller
 
     public function store(Request $request)
     {
+        Gate::authorize('create', Task::class);
+
         $request->validate([
             'project_id' => 'required|exists:projects,id',
             'title' => 'required|string|max:255',
@@ -34,9 +42,9 @@ class TaskController extends Controller
         ]);
 
         $project = Project::findOrFail($request->project_id);
-        if ($project->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
+        
+        // Phải có quyền cấu hình project này thì mới được thả Task vào
+        Gate::authorize('update', $project);
 
         $task = Task::create($request->all());
 
@@ -45,18 +53,14 @@ class TaskController extends Controller
 
     public function show(Request $request, Task $task)
     {
-        if ($task->project->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
+        Gate::authorize('view', $task);
 
         return response()->json($task->load('assignee'));
     }
 
     public function update(Request $request, Task $task)
     {
-        if ($task->project->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
+        Gate::authorize('update', $task);
 
         $request->validate([
             'title' => 'sometimes|required|string|max:255',
@@ -73,9 +77,7 @@ class TaskController extends Controller
 
     public function destroy(Request $request, Task $task)
     {
-        if ($task->project->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
+        Gate::authorize('delete', $task);
 
         $task->delete();
 
