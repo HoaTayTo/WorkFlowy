@@ -1,59 +1,95 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+<div align="center">
+  <h1 align="center">🎯 WorkFlowy - Kanban Task Management</h1>
+  <p align="center">
+    A robust, scalable Kanban-style project management tool inspired by Trello & Jira.
+    <br />
+    Built with <strong>Laravel 11 RESTful API</strong> + <strong>Vue.js 3 (Composition API)</strong>.
+  </p>
+</div>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+---
 
-## About Laravel
+## 🚀 Màn Chào Sân (Introduction)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+**WorkFlowy** được thiết kế để giải quyết bài toán quản lý công việc nhóm một cách trực quan, hiện đại và chuẩn mực. Thông qua mô hình bảng Kanban (Kéo thả mượt mà), dự án này là minh chứng rõ ràng cho việc nắm vững cơ sở dữ liệu quan hệ, tích hợp hệ thống qua RESTful API, quản lý State trên Frontend (Pinia) và hiểu biết sâu sắc về các luồng Authorization (Bảo mật 2 lớp).
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Dự án được triển khai bằng bộ quy chuẩn **Git Flow**, áp dụng mô hình kiến trúc Tách Rời (Decoupled Architecture - SPA kết nối Backend API qua Axios interceptors).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 🛠️ Công Nghệ Chuyên Sâu Đã Sử Dụng (Tech Stack)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### 🔹 Backend (Core API)
+- **Framework:** Laravel 11 (PHP 8.2+)
+- **Database:** MySQL relational DB (Thiết kế Schema 1-N phức tạp)
+- **Authentication:** Laravel Sanctum (Cấp phát Token API, JWT-like)
+- **Authorization:** Laravel Policies & Gates (Bảo vệ quyền truy cập tài nguyên của User)
+- **Architecture:** Chuẩn RESTful API (Resource Routing, Validation Request riêng biệt)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 🔹 Frontend (User Interface)
+- **Framework:** Vue.js 3 (Composition API - `setup` script)
+- **State Management:** Pinia (Kho lưu trữ siêu nhẹ và tối ưu hơn Vuex)
+- **Routing:** Vue Router (Với Navigation Guards chặn truy cập trái phép)
+- **API Client:** Axios interceptors (Tự động đính kèm Bearer Token ngầm hóa)
+- **Styling UI:** Tailwind CSS v3 (Utility-first, responsive grid/flex layout)
+- **Interactions:** HTML5 Drag and Drop API cho thao tác di chuyển thẻ trực quan (Optimistic UI Update)
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## ✨ Điểm Sáng Kỹ Thuật (Key Features)
 
-### Premium Partners
+✅ **Hệ thống Token API hoàn chỉnh:** Frontend và Backend hoàn toàn độc lập. Việc xác thực danh tính dựa hoàn toàn vào chuỗi Access Token, dễ dàng nâng cấp sang React Native cho Mobile App trong tương lai.
+<br>✅ **Bảo mật nhiều lớp (Security in depth):**
+   - Lớp 1: Middleware Auth Sanctum chặn người đứng ngoài ứng dụng.
+   - Lớp 2: Laravel Policies ngăn một User (dù đã Login) cố tình truy cập/xóa/sửa Project hoặc Task thuộc về một User khác.
+<br>✅ **Giao diện đa nhiệm (SPA & Tối ưu RAM):** Mọi thao tác đổi màn hình, Thêm/Sửa/Kéo/Thả diễn ra trong chớp mắt mà không bao giờ tải lại trang (Zero page reloads).
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+---
 
-## Contributing
+## 🗄️ Cấu trúc Dữ Liệu (Database Schema)
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- **`users`** (Tài khoản người dùng)
+- **`projects`** (Bảng dự án): Belongs to 1 User.
+- **`tasks`** (Bảng thẻ công việc): Belongs to 1 Project.
+  - Phân loại bằng ENUM Priority: `low`, `medium`, `high`.
+  - Phân loại bằng ENUM Status (Cột bảng Kanban): `todo`, `in_progress`, `review`, `done`.
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## ⚙️ Hướng Dẫn Cài Đặt và Chạy Thử (Run Locally)
 
-## Security Vulnerabilities
+### 1. Khởi động Backend Laravel
+```bash
+# Cài đặt thư viện PHP
+composer install
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# Copy biến môi trường
+cp .env.example .env
 
-## License
+# Chỉnh sửa file .env để kết nối với MySQL của bạn
+DB_DATABASE=workflowy_db
+DB_USERNAME=root
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# Sinh khóa bí mật của Laravel
+php artisan key:generate
+
+# Chạy tạo bảng CSDL
+php artisan migrate
+
+# Bật máy chủ Backend (Mặc định ở http://127.0.0.1:8000)
+php artisan serve
+```
+
+### 2. Khởi động Frontend Vue / Vite
+```bash
+cd frontend
+
+# Cài đặt thư viện JS
+npm install
+
+# Bật giao diện Frontend (Mặc định ở http://localhost:5173)
+npm run dev
+```
+
+---
+*Dự án thực chiến được xây dựng và commit nghiêm ngặt theo mô hình GitFlow để rèn luyện tư duy làm việc nhóm (Agile/Scrum).*
