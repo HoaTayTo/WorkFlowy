@@ -46,17 +46,24 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useAuthStore } from '../stores/auth';
 import api from '../api';
+import { initEcho } from '../echo';
+import { toast } from 'vue3-toastify';
+import 'vue3-toastify/dist/index.css';
 
 const props = defineProps({
     iconClass: { type: String, default: '' }
 });
 
 const router = useRouter();
+const authStore = useAuthStore();
 const dropdownRef = ref(null);
 const isOpen = ref(false);
 const notifications = ref([]);
 const isLoading = ref(false);
+let echoInstance = null;
+let currentChannel = null;
 
 const unreadCount = computed(() => {
     return notifications.value.filter(n => !n.read_at).length;
@@ -123,9 +130,36 @@ const closeDropdown = (e) => {
 onMounted(() => {
     fetchNotifications();
     document.addEventListener('click', closeDropdown);
+
+    if (authStore.user) {
+        echoInstance = initEcho();
+        if (echoInstance) {
+            currentChannel = `App.Models.User.${authStore.user.id}`;
+            echoInstance.private(currentChannel)
+                .notification((notification) => {
+                    // Thêm thông báo vào mảng để chuông tăng số
+                    notifications.value.unshift(notification);
+                    // Hiện cửa sổ thông báo (Toast)
+                    toast.info(notification.data?.message || 'Bạn có thông báo mới', {
+                        position: 'bottom-right',
+                        autoClose: 5000,
+                        onClick: () => {
+                            if (notification.data?.url) {
+                                router.push(notification.data.url);
+                                markAsRead(notification.id);
+                                isOpen.value = false;
+                            }
+                        }
+                    });
+                });
+        }
+    }
 });
 
 onUnmounted(() => {
     document.removeEventListener('click', closeDropdown);
+    if (echoInstance && currentChannel) {
+        echoInstance.leave(currentChannel);
+    }
 });
 </script>

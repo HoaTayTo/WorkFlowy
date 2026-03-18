@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Comment;
 use App\Models\Task;
+use App\Notifications\NewComment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
@@ -37,6 +38,16 @@ class CommentController extends Controller
             'user_id' => $request->user()->id,
             'content' => $request->content,
         ]);
+
+        // 1. Nếu người comment KHÔNG PHẢI chủ dự án -> Báo cho chủ dự án
+        if ($task->project->user_id !== $request->user()->id) {
+            $task->project->user->notify(new NewComment($task, $request->user(), $request->content));
+        }
+
+        // 2. Nếu task này được chuyển giao cho ai đó, và người đó KHÔNG PHẢI tác giả comment -> Báo cho người được giao việc
+        if ($task->assignee_id && $task->assignee_id !== $request->user()->id) {
+            $task->assignee->notify(new NewComment($task, $request->user(), $request->content));
+        }
 
         return response()->json($comment->load('user:id,name,email'), 201);
     }

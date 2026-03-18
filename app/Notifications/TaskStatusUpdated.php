@@ -5,8 +5,7 @@ namespace App\Notifications;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Notification;
 
 class TaskStatusUpdated extends Notification
@@ -26,7 +25,7 @@ class TaskStatusUpdated extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', 'broadcast'];
     }
 
     public function toArray(object $notifiable): array
@@ -47,5 +46,14 @@ class TaskStatusUpdated extends Notification
             'url' => "/projects/{$this->task->project_id}",
             'type' => 'status_updated',
         ];
+    }
+
+    public function toBroadcast(object $notifiable): BroadcastMessage
+    {
+        return new BroadcastMessage([
+            'data' => $this->toArray($notifiable),
+            'id' => $this->id,
+            'created_at' => now()->toISOString()
+        ]);
     }
 }

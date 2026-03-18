@@ -5,24 +5,28 @@ namespace App\Notifications;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Notification;
 
-class TaskAssigned extends Notification
+class NewComment extends Notification implements ShouldQueue
 {
     use Queueable;
 
     public $task;
-    public $assigner;
+    public $commenter;
+    public $commentText;
 
-    public function __construct(Task $task, User $assigner)
+    public function __construct(Task $task, User $commenter, string $commentText)
     {
         $this->task = $task;
-        $this->assigner = $assigner;
+        $this->commenter = $commenter;
+        $this->commentText = $commentText;
     }
 
     public function via(object $notifiable): array
     {
+        // Gửi qua database và đường truyền websocket broadcast (Reverb)
         return ['database', 'broadcast'];
     }
 
@@ -30,10 +34,10 @@ class TaskAssigned extends Notification
     {
         return [
             'task_id' => $this->task->id,
-            'title' => 'Bạn được giao việc mới',
-            'message' => "{$this->assigner->name} đã giao cho bạn thẻ công việc: {$this->task->title}",
+            'title' => 'Bình luận mới',
+            'message' => "{$this->commenter->name} đã bình luận vào công việc: {$this->task->title}",
             'url' => "/projects/{$this->task->project_id}",
-            'type' => 'assigned',
+            'type' => 'new_comment',
         ];
     }
 
