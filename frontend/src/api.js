@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Khởi tạo một đối tượng (instance) axios, gắn cứng URL của Backend Laravel
 const api = axios.create({
-    baseURL: 'http://127.0.0.1:8000/api', // Địa chỉ Backend
+    baseURL: 'http://127.0.0.1:8001/api', // Địa chỉ Backend
     headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
