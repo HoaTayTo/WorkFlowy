@@ -3,10 +3,9 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Broadcast;
+use App\Http\Controllers\Api\AuthController;
 
 Broadcast::routes(['middleware' => ['auth:sanctum']]);
-
-use App\Http\Controllers\Api\AuthController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
